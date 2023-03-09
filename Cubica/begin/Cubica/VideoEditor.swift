@@ -66,6 +66,19 @@ class VideoEditor {
     } else {
       videoSize = assetTrack.naturalSize
     }
+    
+    let backgroundLayer = CALayer()
+    backgroundLayer.frame = CGRect(origin: .zero, size: videoSize)
+    let videoLayer = CALayer()
+    videoLayer.frame = CGRect(origin: .zero, size: videoSize)
+    let overlayLayer = CALayer()
+    overlayLayer.frame = CGRect(origin: .zero, size: videoSize)
+    
+    let outputLayer = CALayer()
+    outputLayer.frame = CGRect(origin: .zero, size: videoSize)
+    outputLayer.addSublayer(backgroundLayer)
+    outputLayer.addSublayer(videoLayer)
+    outputLayer.addSublayer(overlayLayer)
   }
   
   private func orientation(from transform: CGAffineTransform) -> (orientation: UIImage.Orientation, isPortrait: Bool) {
