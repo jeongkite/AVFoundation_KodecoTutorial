@@ -31,7 +31,31 @@ import AVFoundation
 
 class VideoEditor {
   func makeBirthdayCard(fromVideoAt videoURL: URL, forName name: String, onComplete: @escaping (URL?) -> Void) {
-    onComplete(videoURL)
+    let asset = AVURLAsset(url: videoURL)
+    let composition = AVMutableComposition()
+    
+    guard
+      let compositionTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
+      let assetTrack = asset.tracks(withMediaType: .video).first
+    else {
+      print("Something is wrong with the asset.")
+      onComplete(nil)
+      return
+    }
+    
+    do {
+      let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+      try compositionTrack.insertTimeRange(timeRange, of: assetTrack, at: .zero)
+      
+      if let audioAssetTrack = asset.tracks(withMediaType: .audio).first,
+         let compositionAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
+        try compositionAudioTrack.insertTimeRange(timeRange, of: audioAssetTrack, at: .zero)
+      }
+    } catch {
+      print(error)
+      onComplete(nil)
+      return
+    }
   }
   
   private func orientation(from transform: CGAffineTransform) -> (orientation: UIImage.Orientation, isPortrait: Bool) {
@@ -55,9 +79,9 @@ class VideoEditor {
   private func compositionLayerInstruction(for track: AVCompositionTrack, assetTrack: AVAssetTrack) -> AVMutableVideoCompositionLayerInstruction {
     let instruction = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
     let transform = assetTrack.preferredTransform
-
+    
     instruction.setTransform(transform, at: .zero)
-
+    
     return instruction
   }
   
