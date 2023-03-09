@@ -56,6 +56,16 @@ class VideoEditor {
       onComplete(nil)
       return
     }
+    
+    compositionTrack.preferredTransform = assetTrack.preferredTransform
+    let videoInfo = orientation(from: assetTrack.preferredTransform)
+    
+    let videoSize: CGSize
+    if videoInfo.isPortrait {
+      videoSize = CGSize(width: assetTrack.naturalSize.height, height: assetTrack.naturalSize.width)
+    } else {
+      videoSize = assetTrack.naturalSize
+    }
   }
   
   private func orientation(from transform: CGAffineTransform) -> (orientation: UIImage.Orientation, isPortrait: Bool) {
